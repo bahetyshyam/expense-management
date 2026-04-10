@@ -1,9 +1,12 @@
 import { createClient } from "@/utils/supabase/server";
+import { requireApiUser } from "@/lib/auth/server";
 import { NextRequest } from "next/server";
 
 export async function GET() {
   try {
     const supabase = await createClient();
+    const { response } = await requireApiUser(supabase);
+    if (response) return response;
 
     const { data: accounts, error } = await supabase
       .from("accounts")
@@ -45,6 +48,9 @@ interface AccountPatchBody {
 export async function PATCH(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const { response } = await requireApiUser(supabase);
+    if (response) return response;
+
     const body = (await request.json()) as AccountPatchBody;
 
     if (!body.id) {
@@ -88,6 +94,8 @@ export async function PATCH(request: NextRequest) {
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const { user, response } = await requireApiUser(supabase);
+    if (response || !user) return response;
 
     const body = await request.json();
     const { name, institution, account_type, last_four } = body;
@@ -105,6 +113,7 @@ export async function POST(request: Request) {
     const { data: account, error } = await supabase
       .from("accounts")
       .insert({
+        user_id: user.id,
         name,
         institution,
         account_type,

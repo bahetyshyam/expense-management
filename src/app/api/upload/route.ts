@@ -1,10 +1,13 @@
 import { createClient } from "@/utils/supabase/server";
+import { requireApiUser } from "@/lib/auth/server";
 import { ingestQfxFile } from "@/lib/services/ingestion";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const { response } = await requireApiUser(supabase);
+    if (response) return response;
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { requireApiUser } from "@/lib/auth/server";
 import { NextRequest } from "next/server";
 import {
   createPagination,
@@ -10,6 +11,8 @@ import { fetchTransactionSummaryRows } from "@/lib/server/ledger-data";
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
+    const { response } = await requireApiUser(supabase);
+    if (response) return response;
 
     const searchParams = request.nextUrl.searchParams;
     const accountId = searchParams.get("accountId");

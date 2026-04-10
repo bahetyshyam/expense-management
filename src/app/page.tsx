@@ -1,6 +1,8 @@
 import { Landmark, ShieldCheck } from "lucide-react";
 import DashboardUI from "@/components/DashboardUI";
 import { ImportStatementDialog } from "@/components/ImportStatementDialog";
+import { SignOutButton } from "@/components/auth/SignOutButton";
+import { requirePageUser } from "@/lib/auth/server";
 import { createClient } from "@/utils/supabase/server";
 import { IconTile, ProductBadge, Surface } from "@/components/ledger/primitives";
 import {
@@ -15,6 +17,7 @@ export const dynamic = "force-dynamic";
 const INITIAL_LEDGER_LIMIT = 50;
 export default async function Home() {
   const supabase = await createClient();
+  await requirePageUser(supabase);
 
   const { data: accounts } = await supabase
     .from("accounts")
@@ -62,8 +65,9 @@ export default async function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex w-full justify-start lg:w-auto lg:justify-end">
+            <div className="flex w-full flex-wrap items-center justify-start gap-3 lg:w-auto lg:justify-end">
               <ImportStatementDialog />
+              <SignOutButton />
             </div>
           </div>
         </Surface>
